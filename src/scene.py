@@ -2,8 +2,8 @@ import pygame
 from typing import Dict
 from logic import Game
 import sys
-from lib.components import ComponentManager
-from lib.utils import load_music
+from libs.components import ComponentManager
+from libs.utils import load_music
 
 # Tanto os erros de renderização da cena, quanto do
 # SceneManager vão acabar o programa utilizando:
@@ -14,15 +14,15 @@ class Scene:
 
   def __init__(
       self,
-      name: str, 
+      name: str,
       shared_state: Dict[str, str] = {},
-      soundtrack_filename: list[str] = None
+      soundtrack_filename: list[str] | None = None
     ):
       # Esse parâmetros vão ser injetados pela SceneManager
     # que vai controlar essa cena
-    self.screen: pygame.surface.Surface = None
-    self.game: Game = None
-    
+    self.screen: pygame.surface.Surface | None = None
+    self.game: Game | None = None
+
     # Indica se a classe já foi inicializada
     self.is_injected = False
 
@@ -31,7 +31,7 @@ class Scene:
 
     self.name = name
     self.shared_state = shared_state
-    
+
     if soundtrack_filename:
       load_music(*soundtrack_filename)
       self.has_soundtrack = True
@@ -78,7 +78,7 @@ class Scene:
     if not self.is_injected:
       sys.exit("Você precisa injetar a cena antes de renderizar.")
       return
-    
+
     if not self.is_setup:
       sys.exit("Você precisa configurar a cena antes de renderizar.")
     return
@@ -93,12 +93,12 @@ class SceneManager:
 
   def has_current_scene(self):
     return self.current_scene is not None
-  
+
   def add_scene(self, scene: Scene, switch: bool = True):
     if scene.name in self.scenes:
       sys.exit(f"Você já possui uma cena com esse nome: {scene.name}.")
       return
-    
+
     # Injeta os objetos game e screen na cena
     scene.inject(self, self.game, self.screen)
 
@@ -109,7 +109,7 @@ class SceneManager:
       else:
         self.screen.fill('black')
         self.current_scene = scene
-  
+
   def change_to_scene(self, scene_name: str):
     if scene_name not in self.scenes:
       sys.exit(f"Você está tentando mudar para uma cena que não existe: {scene_name}.")
@@ -152,14 +152,14 @@ class SceneManager:
 
   def play_soundtrack(self):
     if self.has_current_scene():
-      self.current_scene.play_soundtrack()
+      self.current_scene.play_soundtrack() # type: ignore
 
   def stop_soundtrack(self):
     if self.has_current_scene():
-      self.current_scene.stop_soundtrack()
+      self.current_scene.stop_soundtrack() # type: ignore
 
   def is_soundtrack_playing(self) -> bool:
     if self.has_current_scene():
-      return self.current_scene.is_soundtrack_playing()
+      return self.current_scene.is_soundtrack_playing() # type: ignore
 
     return False

@@ -1,9 +1,9 @@
 from scene import Scene
 from typing import Dict
 from logic import get_difficulty_by_index
-from lib.utils import load_image
-from lib.components import SpriteSource, Text, Image, Timer, Alignment, SpriteButton
-from lib.game_components import Map, PlayerBoard, SoundtrackToggle, FirstPlayerSorter, Submarine, DiceRoller, PlayerDecision, SubmarineOptions, WinnerDisplay
+from libs.utils import load_image
+from libs.components import SpriteSource, Text, Image, Timer, Alignment, SpriteButton
+from libs.game_components import Map, PlayerBoard, SoundtrackToggle, FirstPlayerSorter, Submarine, DiceRoller, PlayerDecision, SubmarineOptions, WinnerDisplay
 import pygame
 
 class PlayScene(Scene):
@@ -29,7 +29,7 @@ class PlayScene(Scene):
       (64, 32),
       disabled_sprite_index=6
     )
-    
+
     # A tela do jogo vai pegar 75% da tela e os outros 25%
     # vai ser responsável pela barra de status do jogo
     playable_game_width = window_width * 0.75
@@ -47,13 +47,13 @@ class PlayScene(Scene):
     smallest_dimension = playable_game_height if playable_game_width > playable_game_height else playable_game_width
     # Equação criada para calcular o tamanho de escala necessária a partir da tela:
     # sb = [ss - g(tc - 1)]/(S*tc)
-    # Onde: 
+    # Onde:
     # - S("size") = largura do pixel;
     # - sb("scale_by") = tamanho da escala;
     # - ss("smallest dimension") = menor dimensão;
     # - tc("tile_count") = quantidade de quadrados;
     # - g("gap") = espaço entre quadrados
-    scale_by_fit = (smallest_dimension - map_gap_size * (self.game.map_size - 1) ) / (map_sprite_size * self.game.map_size) 
+    scale_by_fit = (smallest_dimension - map_gap_size * (self.game.map_size - 1) ) / (map_sprite_size * self.game.map_size)
 
     self.game_map = Map(
       ((window_width / 2) - (sidebar_game_width / 2), (window_height / 2) + (self.submarine_animation_height / 2)),
@@ -95,7 +95,7 @@ class PlayScene(Scene):
 
     sidebar_original_width = 360
     sidebar_original_height = 1080
-    
+
     sidebar_width_proportionality_coefficient = sidebar_game_width / sidebar_original_width
     sidebar_height_proportionality_coefficient = sidebar_game_height / sidebar_original_height
 
@@ -112,7 +112,7 @@ class PlayScene(Scene):
     )
 
     corner_button_gap = 5
-    
+
     real_on_sprite_width, real_on_sprite_height = on_sprite_source.real_sprite_size
     soundtrack_toggle = SoundtrackToggle(
       (real_on_sprite_width / 2 + corner_button_gap, window_height - real_on_sprite_height / 2 - corner_button_gap),
@@ -123,13 +123,13 @@ class PlayScene(Scene):
 
     def stop_game():
       self.game.running = False
-    
+
     quit_sprite_source = SpriteSource(
       ["buttons", "quit.png"],
-      (64, 26), 
+      (64, 26),
       (1.5, 1.5),
     )
-    
+
     quit_sprite_width, quit_sprite_height = quit_sprite_source.real_sprite_size
 
     quit_button = SpriteButton(
@@ -137,7 +137,7 @@ class PlayScene(Scene):
       quit_sprite_source,
       on_click=lambda _: stop_game()
     )
-  
+
     sidebar = Image(
       (sidebar_centralized_x, sidebar_centralized_y),
       # Não vou especificar um tamanho para o sprite dele porque não
@@ -149,13 +149,13 @@ class PlayScene(Scene):
     )
 
     initial_status_y = self.submarine_animation_height + 10
-    
+
     status_title = Text(
-      (sidebar_centralized_x, initial_status_y), 
+      (sidebar_centralized_x, initial_status_y),
       "Status",
-      36, 
+      36,
       "white",
-      background_file_name=["small_banner.png"], 
+      background_file_name=["small_banner.png"],
       background_scale_by_size=(1.6, 1.5)
     )
 
@@ -216,7 +216,7 @@ class PlayScene(Scene):
     )
 
     # Turnos
-    
+
     turn_counter_icon = Image(
       (info_left_x, info_start_y + 2 * space_between_info),
       SpriteSource(
@@ -319,7 +319,7 @@ class PlayScene(Scene):
       (1.5, 1.4),
       disabled_sprite_index=4
     )
- 
+
     player_board_y = profile_icon.get_y_position() + profile_icon.sprite_source.get_real_sprite_height() + space_between_info
 
     for index, player in enumerate(self.game.players):
@@ -330,7 +330,7 @@ class PlayScene(Scene):
         self.game,
         alignment=Alignment.LEFT
       )
-     
+
       self.component_manager.add_component(player_board)
 
   def draw(self):

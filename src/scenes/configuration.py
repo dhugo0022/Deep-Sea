@@ -1,8 +1,8 @@
 from scene import Scene
 from scenes.play import PlayScene
-from lib.components import SpriteSource, Text, SpriteButton, Counter, Dropdown
-from lib.game_components import SoundtrackToggle
-from lib.utils import load_image
+from libs.components import SpriteSource, Text, SpriteButton, Counter, Dropdown
+from libs.game_components import SoundtrackToggle
+from libs.utils import load_image
 import pygame
 
 class ConfigurationScene(Scene):
@@ -25,9 +25,9 @@ class ConfigurationScene(Scene):
     center_x = window_width / 2
 
     game_title = Text(
-      (center_x, 200), 
+      (center_x, 200),
       "Deep Sea",
-      64, 
+      64,
       "white",
     )
 
@@ -37,12 +37,12 @@ class ConfigurationScene(Scene):
     # Quantidade inicial de oxygênio
 
     initial_oxygen_tanks_handle = Text(
-      (center_x - 60, initial_option_y), 
+      (center_x - 60, initial_option_y),
       "Qtd. de oxygênio:",
-      24, 
+      24,
       "white",
       text_offset=(0, -2),
-      background_file_name=["small_banner.png"], 
+      background_file_name=["small_banner.png"],
       background_scale_by_size=(1.6, 1.5)
     )
 
@@ -60,25 +60,25 @@ class ConfigurationScene(Scene):
       ["buttons", "increase.png"],
 
       (40, 0),
-      
+
       scale_by_size=(3, 3),
       button_sprite_size=(10, 10),
       button_disable_sprite_index=2,
       on_click=lambda new_size: self.shared_state.update({"initial_oxygen_tanks": new_size})
     )
-    
+
     default_option_space_gap = initial_oxygen_tanks_handle.background.get_height()
 
     # Tamanho do mapa
 
     map_size_y = initial_option_y + default_option_space_gap + space_between_options
     map_size_handle = Text(
-      (center_x - 60, map_size_y), 
+      (center_x - 60, map_size_y),
       "Tamanho do mapa:",
-      24, 
+      24,
       "white",
       (0, -2),
-      background_file_name=["small_banner.png"], 
+      background_file_name=["small_banner.png"],
       background_scale_by_size=(1.6, 1.5)
     )
 
@@ -96,23 +96,23 @@ class ConfigurationScene(Scene):
       ["buttons", "increase.png"],
 
       (40, 0),
-      
+
       scale_by_size=(3, 3),
       button_sprite_size=(10, 10),
       button_disable_sprite_index=2,
       on_click=lambda new_size: self.shared_state.update({"map_size": new_size})
     )
-        
+
     # Quantidade de jogadores
 
     player_count_y = initial_option_y + default_option_space_gap * 2 + space_between_options * 2
     player_count_handle = Text(
-      (center_x - 60, player_count_y), 
+      (center_x - 60, player_count_y),
       "Jogadores:",
-      24, 
+      24,
       "white",
       text_offset=(0, -2),
-      background_file_name=["small_banner.png"], 
+      background_file_name=["small_banner.png"],
       background_scale_by_size=(1.6, 1.5)
     )
 
@@ -130,7 +130,7 @@ class ConfigurationScene(Scene):
       ["buttons", "increase.png"],
 
       (40, 0),
-      
+
       scale_by_size=(3, 3),
       button_sprite_size=(10, 10),
       button_disable_sprite_index=2,
@@ -141,15 +141,15 @@ class ConfigurationScene(Scene):
 
     difficulty_y = initial_option_y + default_option_space_gap * 3 + space_between_options * 3
     difficulty_handle = Text(
-      (center_x - 60, difficulty_y), 
+      (center_x - 60, difficulty_y),
       "Dificuldade:",
-      24, 
+      24,
       "white",
       (0, -2),
-      background_file_name=["small_banner.png"], 
+      background_file_name=["small_banner.png"],
       background_scale_by_size=(1.6, 1.5)
     )
-  
+
     difficulty_dropdown = Dropdown(
       (center_x + 105, difficulty_y),
       SpriteSource(
@@ -177,7 +177,7 @@ class ConfigurationScene(Scene):
     start_button_y = initial_option_y + default_option_space_gap * 4 + space_between_options * 5
 
     start_button = SpriteButton(
-      (center_x, start_button_y),  
+      (center_x, start_button_y),
       SpriteSource(
         ["buttons", "long_start.png"],
         (128, 26),
@@ -191,18 +191,18 @@ class ConfigurationScene(Scene):
       (center_x, quit_button_y),
       SpriteSource(
         ["buttons", "long_quit.png"],
-        (128, 26), 
+        (128, 26),
         (2.5, 2.5),
       ),
       on_click=lambda _: stop_game()
     )
-    
+
     on_sprite_source = SpriteSource(
       ["buttons", "on_soundtrack_toggle.png"],
       (26, 26),
       (2, 2),
     )
-    
+
     off_sprite_source = SpriteSource(
       ["buttons", "off_soundtrack_toggle.png"],
       (26, 26),
@@ -232,7 +232,7 @@ class ConfigurationScene(Scene):
       difficulty_dropdown, # Dropdown adicionado depois, pois ele vai ficar em cima do botão
       soundtrack_toggle
     )
-  
+
   # A renderização foi separada de dentro da classe de ComponentManager
   # para ter um controle mais granulado a cerca da hierarquia de rende
   # rização.
