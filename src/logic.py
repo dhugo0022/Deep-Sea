@@ -2,7 +2,7 @@ import random
 from enum import Enum
 from typing import Dict
 import sys
-from lib.components import SpriteSource
+from libs.components import SpriteSource
 import math
 
 class EntityType(Enum):
@@ -62,7 +62,7 @@ next_diver_sprite = 1
 class Player(Entity):
   def __init__(self):
     super().__init__(
-      EntityType.PLAYER, 
+      EntityType.PLAYER,
       SpriteSource(["entities", "divers.png"], (24, 39))
     )
     self.position = (-1, -1)
@@ -88,13 +88,13 @@ class Player(Entity):
 
   def get_player_y(self) -> int:
     return self.position[1]
-  
+
   def is_on_the_submarine(self) -> bool:
     '''
       Retorna True se o jogador está no submarino
     '''
     return self.get_player_x() == -1 and self.get_player_y() == -1
-  
+
   def can_leave_the_submarine(self) -> bool:
     """
       Return True se o jogador pode sair do submarino.\n
@@ -109,13 +109,13 @@ class Player(Entity):
       Retorna a profundidade do jogador
     '''
     return 0 if self.is_on_the_submarine() else self.get_player_y() + 1
-  
+
   def get_treasure_count(self) -> int:
     '''
       Retorna a quantidade de tesouros do jogador
     '''
     return len(self.treasures)
-  
+
   def get_treasures_weight(self) -> int:
     '''
       Retorna a soma de peso dos tesouros do jogador
@@ -125,7 +125,7 @@ class Player(Entity):
       sum_of_weight += treasure.weight
 
     return sum_of_weight
-  
+
   def get_stored_treasure_count(self) -> int:
     '''
       Retorna a quantidade de tesouros guardados do jogador
@@ -141,13 +141,13 @@ class Player(Entity):
       sum_of_weight += treasure.weight
 
     return sum_of_weight
-  
+
   def get_all_treasure_count(self) -> int:
     '''
       Retorna a toda a quantidade de tesouros do jogador
     '''
     return self.get_treasure_count() + self.get_stored_treasure_count()
-  
+
   def get_all_treasures_weight(self) -> int:
     '''
       Retorna a soma de peso de todos os tesouros do jogador
@@ -193,9 +193,9 @@ def get_difficulty_by_index(index: int) -> Difficulty:
     # O último item da lista não retorna como uma tupla
     # então temos que cuidar desse caso
     difficulty_value = difficulty.value[0] if type(difficulty.value) == tuple else difficulty.value
-    if difficulty_value["index"] == index:
+    if difficulty_value["index"] == index: # type: ignore
       return difficulty
-  
+
   sys.exit(f"Não existe um nível de dificuldade para o índice que você deu: {index}.")
 
 class Direction(Enum):
@@ -205,7 +205,7 @@ class Direction(Enum):
   RIGHT = 3
 
 class Game:
-  
+
   '''
     Formato padrão de um objeto de jogo:
     game = {
@@ -231,7 +231,7 @@ class Game:
     '''
       Configura o objeto do jogo com os dados fornecidos pelo\n
       jogador caso o objeto ainda esteja em estado de configuração.
-    '''	
+    '''
 
     if self.game_has_been_configured():
       return
@@ -241,33 +241,33 @@ class Game:
     self.map_size = map_size
     self.map = self.__generate_map_matrix(map_size)
     # Popula o mapa logo depois da criação
-    
+
     self.player_count = player_count
     self.difficulty = difficulty
-    
+
     # Tira do estado de configuração
     self.game_state = GameState.PLAYING
 
     self.turn = 1 # Contagem de turnos
     self.player_of_turn = 0 # Número do jogador para o turno
     self.first_player_sorted = False
-    
+
     self.need_dice_sort = False # Indica se precisa rolar os dados
     self.sorted_dice_number = 0 # Número sorteado de passos
-    self.current_possible_steps: Dict[str, list[tuple[int, int]]] = None # Os possíveis passos que o jogador pode tomar
-    
-    # Indica se, após o jogador sortear o número, ele precisa clicar no objeto 
+    self.current_possible_steps: Dict[str, list[tuple[int, int]]] | None = None # Os possíveis passos que o jogador pode tomar
+
+    # Indica se, após o jogador sortear o número, ele precisa clicar no objeto
     # dele no mapa ou no submarino (no início) para ativar o modo de interação
-    self.need_player_activation = False 
+    self.need_player_activation = False
 
     # Indica se, após o jogador ativar a interação, ele precisa clicar na casa
     # pra andar ou passar a vez
     self.need_player_action = False
-    
-    # Indica se, após o jogador andar, ele precisa escolher se vai pegar o 
+
+    # Indica se, após o jogador andar, ele precisa escolher se vai pegar o
     # tesouro ou não
     self.need_player_decision = False
-    self.treasure_being_taken: Treasure = None
+    self.treasure_being_taken: Treasure | None = None
 
     # O submarino vai usar esses valores para calcular a celula abaixo dele
     self.map_object_rect_width = -1
@@ -277,7 +277,7 @@ class Game:
     # No fim
     self.game_has_ended = False
 
-  def __generate_map_matrix(self, size: int):
+  def __generate_map_matrix(self, size: int) -> list[list[Entity | None]]:
     '''
       Gera uma matriz bidimensional que serve como o mapa\n
       cujo o dominio é representado por:\n
@@ -299,11 +299,11 @@ class Game:
     # O último item da lista não retorna como uma tupla
     # então temos que cuidar desse caso
     difficulty_value = self.difficulty.value[0] if type(self.difficulty.value) == tuple else self.difficulty.value
-    odds = [*difficulty_value.values()][1]
- 
+    odds = [*difficulty_value.values()][1] # type: ignore
+
     for x in range(self.map_size):
       for y in range(self.map_size):
-        
+
         choice = random.choices(
           population=[*odds.keys()],
           weights=[*odds.values()],
@@ -320,69 +320,69 @@ class Game:
           # Não precisar definir a entidade como None já que
           # a inicialização padrão do objeto entity faz isso
           pass
-        
+
         self.map[x][y] = entity
 
     # Coloca os jogadores logo depois da criação
     self.players = [Player() for _ in range(self.player_count)]
 
-  def get_player_by_id(self, player_id: int) -> Player:
+  def get_player_by_id(self, player_id: int) -> Player | None:
     """
       Retorna o jogador com o id fornecido\n
       Caso o objeto do jogo ainda não tenha sido configurado\n
       ou o jogador com esse id não exista, da um erro.
     """
-    found_player: Player = None
+    found_player: Player | None = None
     for player in self.players:
       if player.player_id == player_id:
         found_player = player
         break
-    
+
     if found_player is None:
       sys.exit(f"O player com id {player_id} não foi encontrado.")
       return
-    
+
     return found_player
 
-  
+
   def has_everybody_left_the_submarine_already(self) -> bool:
     """
       Verifica se todos os jogadores já sairam\n
       pelo menos uma vez do submarino.
     """
     return all(player.has_already_left_the_submarine for player in self.players)
-  
+
   def check_win_conditions(self):
     if not self.has_everybody_left_the_submarine_already():
       return False
-    
+
     # Se todos os players voltarem para o submarino
     players_that_meet_conditions = 0
     for player in self.players:
       if player.is_on_the_submarine() and not player.can_leave_the_submarine():
         players_that_meet_conditions += 1
-    
+
     if players_that_meet_conditions == self.player_count:
       self.game_has_ended = True
       return True
-    
+
     players_that_meet_conditions = 0
     # Se sobrar só um jogador que não foi explodido por uma bomba
     for player in self.players:
       if player.is_on_the_submarine() and player.disqualified:
         players_that_meet_conditions += 1
-    
+
     if players_that_meet_conditions == self.player_count - 1:
       self.game_has_ended = True
       return True
-    
+
     players_that_meet_conditions = 0
 
     # O oxigênio acabou
     if self.oxygen_tanks <= 0:
       self.game_has_ended = True
       return True
-    
+
     return False
 
   def get_winner_player(self) -> Player:
@@ -412,7 +412,7 @@ class Game:
     """
     if self.game_has_ended:
       return
-    
+
     if self.check_win_conditions():
       return
 
@@ -422,30 +422,30 @@ class Game:
     # já está impossibilitado de jogar;
     # - Se ele voltar pro submarino
     # - Se ele morrer pra bomba
-    if not self.get_current_player_of_turn().playing:
+    if not self.get_current_player_of_turn().playing: # type: ignore
       self.go_to_next_player_turn()
     else:
       # Se o turno cair em um jogador válido, o turno aumenta
       self.turn += 1
       # Coloca para o próximo player pode sortear um número para o dado
       self.need_dice_sort = True
-      # Consome o oxigênio pelo turno  
+      # Consome o oxigênio pelo turno
       self.consume_oxygen()
 
-  
-  def get_current_player_of_turn(self) -> Player:
+
+  def get_current_player_of_turn(self) -> Player | None:
     """
       Pega o atual jogador do turno
     """
     return self.get_player_by_id(self.player_of_turn)
-  
+
   def dice(self) -> int:
     '''
       Gera um par de números aleatório entre 0, 3.
     '''
     return random.randint(0, 3)
 
-  def entity_at(self, position: tuple[int, int]) -> Entity:
+  def entity_at(self, position: tuple[int, int]) -> Entity | None:
     '''
       Retorna a entidade presente na posição (x, y) do mapa\n
       Se a posição estiver vazia, retorna None.\n
@@ -475,10 +475,10 @@ class Game:
 
     if entity == None:
       return False
-    
+
     return entity.type == type
 
-  def get_player_at(self, position: tuple[int, int]) -> Player:
+  def get_player_at(self, position: tuple[int, int]) -> Player | None:
     """
       Retorna o jogador presente na posição (x, y) do mapa\n
       Se a posição estiver vazia, retorna None.\n
@@ -494,7 +494,7 @@ class Game:
     for player in self.players:
       if player.position == position:
         return player
-    
+
     return None
 
   def has_player_at(self, position: tuple[int, int]) -> bool:
@@ -503,7 +503,7 @@ class Game:
     """
 
     return self.get_player_at(position) is not None
-  
+
   def is_player_at(self, player: Player, position: tuple[int, int]) -> bool:
     """
       Verifica se o jogador especificado está presente na posição (x, y) do mapa.
@@ -514,20 +514,20 @@ class Game:
   def is_in_current_possible_steps(self, position: tuple[int, int]) -> bool:
     if not self.has_current_possible_steps():
       return False
-    
-    for direction in self.current_possible_steps.values():
+
+    for direction in self.current_possible_steps.values(): # type: ignore
       for step in direction:
         if step == position:
           return True
-  
+
     return False
-  
+
   def has_current_possible_steps(self) -> bool:
     """
       Verifica se há passos atuais computados
     """
     return self.current_possible_steps is not None
-  
+
   def clear_current_possible_steps(self):
     """
       Limpa os passos atuais computados
@@ -539,20 +539,20 @@ class Game:
       Desassocia o tesouro que o jogador está tentando pegar
     """
     self.treasure_being_taken = None
-  
-  def get_the_direction_of_step(self, destination: tuple[int, int]) -> Direction:
-    for direction, positions in self.current_possible_steps.items():
+
+  def get_the_direction_of_step(self, destination: tuple[int, int]) -> Direction | None:
+    for direction, positions in self.current_possible_steps.items(): # type: ignore
       for position in positions:
         if destination == position:
-          return direction
-        
+          return direction # type: ignore
+
     return None
-  
+
   def get_first_bomb_in_the_way(self, destination: tuple[int, int]) -> tuple[int, int] | None:
     step_direction = self.get_the_direction_of_step(destination)
 
     bomb_pos = None
-    for direction, positions in self.current_possible_steps.items():
+    for direction, positions in self.current_possible_steps.items(): # type: ignore
       if step_direction != direction:
         continue
 
@@ -568,7 +568,7 @@ class Game:
 
 
 
-  def calculate_possible_steps(self, current_position: tuple[int, int], steps: int, search_for: list[Direction] = None) -> Dict[Direction, list[tuple[int, int]]]:
+  def calculate_possible_steps(self, current_position: tuple[int, int], steps: int, search_for: list[Direction] | None = None) -> Dict[Direction, list[tuple[int, int]]] | None:
     '''
       Calcula as possíveis posições para um jogador se mover\n
       nas direções: cima, baixo, esquerda e direita. Baseado\n
@@ -588,7 +588,7 @@ class Game:
     # Desestruturando a tupla em suas variáveis
     current_x, current_y = current_position
     possible_steps = {}
-    
+
     # Se tiver um filtro, pesquisa pelo filtro. Caso contrário, pesquisa em todas as direções
     directions = search_for if search_for else [direction for direction in Direction]
 
@@ -596,13 +596,13 @@ class Game:
 
       remaining_steps = steps
       taken_steps = []
-      
+
       if direction == Direction.UP or direction == Direction.DOWN:
 
         # Impede uma interação a toa caso o jogador já esteja no limite vertical do mapa
         if (direction == Direction.UP and current_y == min_index) or (direction == Direction.DOWN and current_y == max_index):
           continue
-        
+
 
         # TODO: deixar essa lógica mais compacta e com menos if's
         offset = 1
@@ -611,7 +611,7 @@ class Game:
         while step < (steps + offset):
           new_y = max(current_y - step, min_index) if direction == Direction.UP else min(current_y + step, max_index)
           step_position = (current_x, new_y)
-        
+
           if not self.has_player_at(step_position):
             taken_steps.append(step_position)
             remaining_steps -= 1
@@ -637,22 +637,22 @@ class Game:
 
           if remaining_steps == 0:
             break
-            
+
           step += 1
-      
+
       else: # Direções "left" ou "right"
 
         # Impede uma interação a toa caso o jogador já esteja no limite horizontal do mapa
         if (direction == Direction.LEFT and current_x == min_index) or (direction == Direction.RIGHT and current_x == max_index):
           continue
-        
+
         offset = 1
         step = 1
         neighbours = 0
         while step < (steps + offset):
           new_x = max(current_x - step, min_index) if direction == Direction.LEFT else min(current_x + step, max_index)
           step_position = (new_x, current_y)
-        
+
           if not self.has_player_at(step_position):
             taken_steps.append(step_position)
             remaining_steps -= 1
@@ -677,7 +677,5 @@ class Game:
 
       # Atualiza a lista de possíveis passos para a direção atual
       possible_steps[direction] = taken_steps
-    
+
     return possible_steps
-
-
